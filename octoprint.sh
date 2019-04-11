@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 die() {
     echo "Error: $@"
     exit 1
@@ -11,8 +13,11 @@ die() {
 [[ -n "$HOME" ]] || \
     die Env. var. \$HOME is not set
 
-[[ -d "$HOME/venv" ]] ||
+[[ -d "$HOME/venv" ]] || \
     die Expecting to find directory $HOME/venv
+
+[[ -r "$HOME/.octoprint/config.yaml" ]] || \
+    die Expecting configuration directory at $HOME/octoprint
 
 while sleep 5s
 do
@@ -23,4 +28,4 @@ do
 done &
 
 source venv/bin/activate
-exec octoprint $@
+exec $@

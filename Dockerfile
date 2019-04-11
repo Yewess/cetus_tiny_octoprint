@@ -7,9 +7,9 @@ ADD /rpms.txt /root/
 RUN dnf install -y $(cat /root/rpms.txt) && \
     dnf clean all && \
     rm -rf /var/cache/dnf
-RUN useradd octoprint
+RUN useradd -G root octoprint
 WORKDIR /home/octoprint
-ADD /requirements.txt /octoprint.sh /home/octoprint
+ADD /requirements.txt /octoprint.sh /home/octoprint/
 USER octoprint
 RUN virtualenv --python=python2.7 venv && \
     source venv/bin/activate && \
@@ -17,6 +17,7 @@ RUN virtualenv --python=python2.7 venv && \
     pip install --requirement=requirements.txt && \
     rm -rf /home/octoprint/.cache
 RUN mkdir -p octoprint && \
+    chmod 02770 octoprint && \
     ln -sf octoprint .octoprint
 RUN source venv/bin/activate && \
     pip install https://github.com/foosel/OctoPrint/archive/1.3.10.zip && \
@@ -25,5 +26,6 @@ RUN source venv/bin/activate && \
     sed -r -i -e 's/serial\.PARITY_ODD/serial.PARITY_NONE/g' \
         $VIRTUAL_ENV/lib/python2.7/site-packages/octoprint/util/comm.py
 ADD /Dockerfile /root/
-VOLUME ["/home/octoprint/.octoprint"]
+USER octoprint
+VOLUME ["/home/octoprint/octoprint"]
 ENTRYPOINT ["bash", "/home/octoprint/octoprint.sh"]
